@@ -138,7 +138,7 @@ const TimeCounter = () => {
 		[state, setState] = React.useState(STATE_ENUM.STOPPED),
 		[forward, setForward] = React.useState(false),
 		[setupValue, setSetupValue] = React.useState(null),
-		[preset, setPreset] = React.useState(0),
+		[offset, setOffset] = React.useState(0),
 		[time, setTime] = React.useState(zero);
 
 	// TIME UPDATE
@@ -150,7 +150,7 @@ const TimeCounter = () => {
 				if (result == TIME_MAX) setState(STATE_ENUM.STOPPED);
 			}
 			else {
-				result = Math.max(preset - (Date.now() - zero), 0);
+				result = Math.max(offset - (Date.now() - zero), 0);
 				if (result == 0) setState(STATE_ENUM.STOPPED);
 			}
 			setTimeout(() => { setTime(result); }, 16); // 60 fps
@@ -166,7 +166,7 @@ const TimeCounter = () => {
 			const
 				{ millis, max, size, rest } = PRESET_VALUES[setupValue[0]],
 				sum = setupValue[1],
-				units = Math.floor(preset / millis) % rest;
+				units = Math.floor(time / millis) % rest;
 
 			let value;
 
@@ -174,7 +174,8 @@ const TimeCounter = () => {
 			else if (units == 0 && !sum) value = max;
 			else value = millis * (sum ? 1 : -1);
 
-			setPreset(preset + value);
+			setTime(time + value);
+			setOffset(offset + value);
 			setSetupValue(null);
 		}
 	}, [setupValue]);
@@ -225,26 +226,25 @@ const TimeCounter = () => {
 			if (btnid == BUTTON_ENUM.START_FWD) {
 				setState(STATE_ENUM.RUNNING);
 				setForward(true);
-				setZero(Date.now());
-				setTime(0);
+				setZero(Date.now() - offset);
 			}
 			else if (btnid == BUTTON_ENUM.START_BWD) {
 				setState(STATE_ENUM.RUNNING);
 				setForward(false);
 				setZero(Date.now());
-				if (preset == 0) {
-					setPreset(300000); // 5 min
-					setTime(300000);
-				}
-				else setTime(preset);
+				let offval = offset == 0 ? 300000 : offset;
+				setOffset(offval);
+				setTime(offval);
 			}
 			else if (btnid == BUTTON_ENUM.STOP) setState(STATE_ENUM.STOPPED);
 			else if (btnid == BUTTON_ENUM.RESET) {
 				if (state == STATE_ENUM.PAUSED) setState(STATE_ENUM.STOPPED);
-				else if (state == STATE_ENUM.STOPPED) setState(STATE_ENUM.RESET);
-				else if (state == STATE_ENUM.RESET) setPreset(0);
+				else if (state == STATE_ENUM.STOPPED) {
+					setState(STATE_ENUM.RESET);
+					setOffset(0);
+				}
 				setZero(Date.now());
-				setTime((state == STATE_ENUM.RUNNING && !forward) ? (preset > 0 ? preset : 300000) : 0);
+				setTime(offset);
 			}
 		}
 	}
@@ -252,7 +252,7 @@ const TimeCounter = () => {
 	return (
 		<div className="sz-device">
 			<div className="d-flex justify-content-center sz-counter text-end user-select-none">
-				<Timer value={time + preset} running={state == STATE_ENUM.RUNNING} />
+				<Timer value={time} running={state == STATE_ENUM.RUNNING} />
 			</div>
 			<div className="d-flex justify-content-between sz-setuppanel">
 				{
