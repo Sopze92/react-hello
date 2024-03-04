@@ -131,15 +131,17 @@ const Button = ({ label, pressed, callback, btnid }) => {
 	)
 }
 
-const TimeCounter = ({ autostart }) => {
+// Main Component App
+
+const TimeCounter = ({ autostart = false, seconds = 0, countup = true }) => {
 
 	const
-		[zero, setZero] = React.useState(Date.now()),
+		[zero, setZero] = React.useState(countup ? Date.now() - seconds * 1000 : Date.now()),
 		[state, setState] = React.useState(autostart ? STATE_ENUM.RUNNING : STATE_ENUM.STOPPED),
-		[forward, setForward] = React.useState(true),
+		[forward, setForward] = React.useState(countup),
 		[setupValue, setSetupValue] = React.useState(null),
-		[offset, setOffset] = React.useState(0),
-		[time, setTime] = React.useState(zero);
+		[offset, setOffset] = React.useState(seconds * 1000),
+		[time, setTime] = React.useState(zero + seconds * 1000);
 
 	// TIME UPDATE
 	React.useEffect(() => {
@@ -218,20 +220,25 @@ const TimeCounter = ({ autostart }) => {
 			if (state == STATE_ENUM.RUNNING) setState(STATE_ENUM.PAUSED);
 			else if (state == STATE_ENUM.PAUSED) {
 				setState(STATE_ENUM.RUNNING);
-				setZero(Date.now() - time);
+				console.log(time);
+				setZero(forward ? Date.now() - time : Date.now() - (offset - time));
 			}
 		}
 		else {
 			if (btnid == BUTTON_ENUM.START_FWD) {
 				setState(STATE_ENUM.RUNNING);
 				setForward(true);
-				setZero(Date.now() - offset);
+				if (offset == 299999) {
+					setOffset(0);
+					setZero(Date.now());
+				}
+				else setZero(Date.now() - offset);
 			}
 			else if (btnid == BUTTON_ENUM.START_BWD) {
 				setState(STATE_ENUM.RUNNING);
 				setForward(false);
 				setZero(Date.now());
-				let offval = offset == 0 ? 300000 : offset;
+				let offval = offset == 0 ? 299999 : offset;
 				setOffset(offval);
 				setTime(offval);
 			}
@@ -242,7 +249,7 @@ const TimeCounter = ({ autostart }) => {
 					setState(STATE_ENUM.RESET);
 					setOffset(0);
 				}
-				setZero(Date.now());
+				setZero(forward ? Date.now() - offset : Date.now());
 				setTime(offset);
 			}
 		}
