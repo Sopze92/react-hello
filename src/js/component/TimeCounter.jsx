@@ -131,12 +131,12 @@ const Button = ({ label, pressed, callback, btnid }) => {
 	)
 }
 
-const TimeCounter = () => {
+const TimeCounter = ({ autostart }) => {
 
 	const
-		[zero, setZero] = React.useState(0),
-		[state, setState] = React.useState(STATE_ENUM.STOPPED),
-		[forward, setForward] = React.useState(false),
+		[zero, setZero] = React.useState(Date.now()),
+		[state, setState] = React.useState(autostart ? STATE_ENUM.RUNNING : STATE_ENUM.STOPPED),
+		[forward, setForward] = React.useState(true),
 		[setupValue, setSetupValue] = React.useState(null),
 		[offset, setOffset] = React.useState(0),
 		[time, setTime] = React.useState(zero);
@@ -214,7 +214,6 @@ const TimeCounter = () => {
 	}
 
 	const onActionButtonClicked = (btnid) => {
-
 		if (btnid == BUTTON_ENUM.PAUSE) {
 			if (state == STATE_ENUM.RUNNING) setState(STATE_ENUM.PAUSED);
 			else if (state == STATE_ENUM.PAUSED) {
