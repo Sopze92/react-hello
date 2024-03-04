@@ -1,12 +1,24 @@
-//import react into the bundle
-import React, { createElement } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 
-// include your styles into the webpack bundle
 import "../styles/index.css";
 
-//import your own components
-import Index from "./component/index.jsx";
+import TimeCounter from "./component/TimeCounter.jsx";
 
-//render your react application
-ReactDOM.render(<Index />, document.querySelector("#app"));
+/**
+ * +/-      - set the initial time, will be preserved even if you stop/reset the timer
+ * 
+ * pause    - pause/resume a started count
+ * start    - start counting from initial time (or zero if not set)
+ * stop     - stops the counter, stopped time will be displayed until reseted/started
+ * reset    - reset the counter to initial time or zero, press it twice when stopped to reset initial time
+ * 
+ * this looks like the instructions of an ali-express item
+ */
+
+ReactDOM.render(
+  (
+    <div className="container-fluid d-flex justify-content-center align-items-center" style={{height:"100vh"}}>
+      <TimeCounter />
+    </div>
+  ), document.querySelector("#app"));
