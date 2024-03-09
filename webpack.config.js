@@ -39,12 +39,14 @@ module.exports = {
               loader: "css-loader" // translates CSS into CommonJS
           }]
         }, //css only files
-        { 
+/*        
+        this was making impossible to use background: url("") in CSS with any of those file formats
+          { 
           test: /\.(png|svg|jpg|gif)$/, use: {
             loader: 'file-loader',
             options: { name: '[name].[ext]' } 
           }
-        }, //for images
+        }, //for images */
         { test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/, use: ['file-loader'] } //for fonts
     ]
   },

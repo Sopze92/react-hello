@@ -1,0 +1,376 @@
+.tl-model-frame { 
+  --cv-count: 0;
+  max-height: 0;
+}
+
+.tl-model-container{
+  display: flex; perspective: 4096px; user-select: none; pointer-events: none;
+  background: #111;
+  border-radius: 2vmin;
+  outline: .1vmin solid #404047;
+  box-shadow: 0 0 3vmin #303037aa;
+  height: calc(var(--cv-count) * 12vmin + 30vmin);
+}
+
+.msh-parent { content:""; position: absolute; transform-style: preserve-3d; }
+.msh-part { content:""; position: absolute; }
+.msh-face { 
+  content:""; overflow: hidden; position: absolute;
+  transform-style: preserve-3d; inset: 0; --x: 0; --y: 0; --z: 0;
+  scale: 1.01;
+  &::before{ content:""; position: absolute; inset: 0; background: var(--tex); background-size: var(--ts); background-position: var(--tx) var(--ty);}
+}
+
+.mdl-origin {
+  inset: 12vmin 50% 100% 50%;
+
+  /* constants */
+  --dratio: 1.4142;
+  --tex-base:    url("../img/t_base.webp");
+  --tex-front:   url("../img/t_front.webp");
+  --tex-front2:  url("../img/t_front_2.webp");
+  --tex-side:    url("../img/t_side.webp");
+  --tex-detail:  url("../img/t_detail.webp");
+  --tex-light:   url("../img/t_light.webp");
+
+  /* general */
+  --x: 0; --y: 0; --z: 0;
+  --w: 0; --h: 0; --d: 0;
+  transform: rotateX(-10deg) rotateY(-10deg) rotateZ(0);
+  
+  /* trapezoid */
+  --z-xn: 0; --z-xp: 0; --z-yn: 0; --z-yp: 0; --z-zn: 0; --z-zp: 0;
+  --z-xn-o: center; --z-xp-o: center;
+  --z-yn-o: center; --z-yp-o: center;
+  --z-zn-o: center; --z-zp-o: center;
+  --z-s: 1;
+
+  /* rendering */
+  --tex: var(--tex-base);
+  --tx: 0; --ty: 0;
+  --ts: 100%;
+  image-rendering: pixelated;
+  color: #0000;
+
+  /* lighting */
+  --fb-xn: .75; --fb-xp: .75;
+  --fb-yn: .4; --fb-yp: 1.0;
+  --fb-zn: .87; --fb-zp: .87;
+
+/*   animation: dev 2000ms infinite alternate ease-in-out; */
+}
+
+.mdl-pivot {
+  inset: 0;
+  animation-composition: add, accumulate;
+  animation: 
+    spinx 6000ms infinite alternate ease-in-out,
+    spiny 3000ms infinite alternate ease-in-out,
+    spinz 1000ms infinite alternate ease-in-out
+}
+
+@keyframes dev {
+  0% { transform:   rotateY(-70deg); }
+  100% { transform:  rotateY(-20deg); }
+}
+
+@keyframes spinx {
+  0% { transform:   rotateX(-5deg); }
+  10% { transform:  rotateX(5deg); }
+  20% { transform:  rotateX(-2deg); }
+  30% { transform:  rotateX(2deg); }
+  40% { transform:  rotateX(-1deg); }
+  50% { transform:  rotateX(3deg); }
+  60% { transform:  rotateX(-3deg); }
+  70% { transform:  rotateX(7deg); }
+  80% { transform:  rotateX(-4deg); }
+  90% { transform:  rotateX(3deg); }
+}
+
+@keyframes spiny {
+  0% { transform:   rotateY(-14deg); }
+  100% { transform:  rotateY(-6deg); }
+}
+
+@keyframes spinz {
+  0% { transform:   rotateZ(-.4deg); }
+  100% { transform: rotateZ(.4deg); }
+}
+
+/* --------------------------------------------------------- SEMAPHORE BODY */
+
+.mdl-body {
+  --w: 14vmin; --h: 40vmin; --d: 9vmin;
+  --x: 0vmin; --y: 8vmin; --z: 4.5vmin;
+  --tx: 14.5vmin; --ty: -2vmin; --ts: 15vmin 15vmin;
+  inset: 0 0 0 -7vmin;
+  width: var(--w);
+  height: var(--h);
+  transform: translate3D(var(--x), var(--y), var(--z));
+}
+
+/* top trapezoid */
+.mdl-body-top {
+  --h: 2vmin;
+  --z-xn: 45deg; --z-xn-o: 100%;
+  --z-xp: -45deg; --z-xp-o: 100%;
+  inset: 0 0 0 0;
+  width: var(--w);
+  height: var(--h);
+  --tex:  var(--tex-side);
+  --ts: 22vmin 30vmin;
+  & > .msf-zneg {
+    --var: calc(100%/14);
+    clip-path: polygon( calc(var(--var) * 2) 0, calc(var(--var) * 12) 0, 100% 100%, 0 100% );
+  }
+  & > .msf-xpos, > .msf-xneg { --z-s: var(--dratio); --tx: -2vmin; }
+  & > .msf-ypos { inset: 0 2vmin 0 2vmin; }
+  & > .msf-zneg { --tex: var(--tex-front); }
+}
+
+/* single light section
+  var --idx cames from react */
+.mdl-body-mid {
+  --cv-idx: 0;
+  --cv-col: #f0f;
+  --y: calc(12vmin * var(--cv-idx));
+  --h: 12vmin;
+  inset: 2vmin 0 0 0;
+  width: var(--w);
+  height: var(--h);
+  transform: translateY(var(--y));
+  --tex:  var(--tex-side);
+  & > .msf-xpos, > .msf-xneg { --tx: -.5vmin; }
+  & > .msf-zneg { --tex: var(--tex-front); }
+}
+
+.mdl-body-mid-rim {
+  --z: -2vmin;
+  inset:0;
+  scale: 0.95;
+  transform: translateZ(var(--z));
+  --tex: var(--tex-front2);
+}
+
+.mdl-body-light {
+  --y: 0; --z: -5vmin;
+  --d: 2vmin;
+  inset:0;
+  scale: 0.95;
+  transform: translateZ(var(--z));
+  pointer-events: all;
+  & .msh-face.msh-layer0 {
+    --tex: var(--tex-light);
+    transform: translateZ(1vmin);
+    &::after {
+      content:""; position: absolute; inset:0;
+      filter: brightness(.25) saturate(0.5);
+      background: var(--cv-col);
+      mix-blend-mode: multiply;
+    }
+  }
+  &:hover {
+    & .msh-face.msh-layer0 {
+      &::after {
+        content:""; position: absolute; inset:0;
+        filter: contrast(.8) brightness(.5) saturate(1.0);
+        background: var(--cv-col);
+        mix-blend-mode: multiply;
+      }
+      &::before { filter: none; }
+    }
+  }
+  &.light-active {
+    & .msh-face.msh-layer0 {
+      &::after {
+        content:""; position: absolute; inset:0;
+        filter: contrast(.8) brightness(1.0) saturate(2.5);
+        background: var(--cv-col);
+        mix-blend-mode: overlay;
+      }
+      &::before { filter: none; }
+    }
+    & > .msh-face.msh-layer1 {
+      --tex: var(--cv-col);
+      border-radius: 40%;
+      transform: translateZ(8vmin) rotateX(1deg);
+      filter: blur(8vmin);
+      opacity: .4;
+      &::before { filter: none; }
+    }
+    & > .msh-face.msh-layer2 {
+      --tex: var(--cv-col);
+      border-radius: 40%;
+      transform: translateZ(5.5vmin) rotateX(1deg);
+      filter: blur(1vmin);
+      opacity: .2;
+      &::before { filter: none; }
+    }
+  }
+}
+
+/* bottom trapezoid */
+.mdl-body-bot {
+  --h: 2vmin;
+  --z-xn: -45deg; --z-xn-o: 0;
+  --z-xp: 45deg; --z-xp-o: 0;
+  --ty: 2vmin;
+  inset: calc(2vmin + var(--cv-count) * 12vmin) 0 0 0;
+  width: var(--w);
+  height: var(--h);
+  --tex:  var(--tex-side);
+  --ts: 22vmin 30vmin;
+  & > .msf-zneg {
+    --var: calc(100%/14);
+    clip-path: polygon( 0 0, 100% 0, calc(var(--var) * 12) 100%, calc(var(--var) * 2) 100% );
+  }
+  & > .msf-xpos, > .msf-xneg { scale: var(--dratio); --tx: -2vmin; }
+  & > .msf-yneg { inset: 0 2vmin 0 2vmin; }
+  & > .msf-zneg { --tex:  var(--tex-front); }
+}
+
+/* support */
+.mdl-body-support {
+  --w: 6vmin; --h: 8vmin; --d: 6vmin;
+  --z-xn: 14deg; --z-xn-o: 100%;
+  --z-xp: -14deg; --z-xp-o: 100%; 
+  --z-zn: 14deg; --z-zn-o: 100%; 
+  --z-zp: -14deg; --z-zp-o: 100%; 
+  --tx: -1vmin; --ty: -12vmin; --ts: 16vmin 20vmin;
+  inset: -8vmin 0 0 4vmin;
+  width: var(--w);
+  height: var(--h);
+  transform: translateZ(-1.5vmin);
+  --tex:  var(--tex-detail);
+  & > .msf-xpos, > .msf-xneg, > .msf-zneg, > .msf-zpos {
+    --var: calc(100%/6);
+    clip-path: polygon( calc(var(--var) * 2) 0, calc(var(--var) * 4) 0, 100% 100%, 0 100% );
+  }
+  & > .msf-xpos, > .msf-xneg, > .msf-zneg, > .msf-zpos { --z-s: 1.04 }
+}
+
+/* --------------------------------------------------------- SEMAPHORE ARM */
+
+.mdl-arm {
+  --w: 45vmin; --h: 20vmin; --d: 9vmin;
+  --x: 0vmin; --y: -10vmin; --z: 4.5vmin;
+  inset: 0 0 0 -5vmin;
+  width: var(--w);
+  height: var(--h);
+  transform: translate3D(var(--x), var(--y), var(--z));
+}
+
+.mdl-arm-head {
+  --w: 6vmin; --h: 8vmin; --d: 6vmin;
+  --x: 0vmin; --y: 6vmin; --z: -1.5vmin;
+  --tx: 0; --ty: 0; --ts: 16vmin;
+  --tex:  var(--tex-detail);
+  inset: -4vmin 0 0 2vmin;
+  width: var(--w);
+  height: var(--h);
+  transform: translate3D(var(--x), var(--y), var(--z));
+}
+
+.mdl-arm-head-top {
+  --w: 6vmin; --h: 2vmin; --d: 6vmin;
+  --x: 0vmin; --y: 4vmin; --z: -1.5vmin;
+  --z-xn: 65deg; --z-xn-o: 100%;
+  --z-xp: -65deg; --z-xp-o: 100%; 
+  --z-zn: 65deg; --z-zn-o: 100%;
+  --tx: 8vmin; --ts: 16vmin;
+  --tex:  var(--tex-detail);
+  inset: -4vmin 0 0 2vmin;
+  width: var(--w);
+  height: var(--h);
+  & > .msf-xpos, > .msf-xneg, > .msf-zneg {
+    clip-path: polygon( 50% 0, 100% 100%, 0 100% );
+  }
+  & > .msf-xpos, > .msf-xneg, > .msf-zneg { --z-s: 1.675 }
+  transform: translate3D(var(--x), var(--y), var(--z));
+}
+
+.mdl-arm-support {
+  --w: 16vmin; --h: 4vmin; --d: 3vmin;
+  --x: 0vmin; --y: 8vmin; --z: -3vmin;
+  --z-yn: -6deg; --z-yn-o: 100%; 
+  inset: -4vmin 0 0 8vmin;
+  width: var(--w);
+  height: var(--h);
+  & > .msf-zneg {
+    --var: calc(100%/4);
+    clip-path: polygon( 0 0, 100% 0, 100% 100%, 0 calc(var(--var) * 2.8) );
+  }
+  & > .msf-yneg { --z-s: 1.01 }
+  transform: translate3D(var(--x), var(--y), var(--z));
+}
+
+.mdl-arm-support-base {
+  --w: 20vmin; --h: 12vmin; --d: 3vmin;
+  --x: 0vmin; --y: 8vmin; --z: -3vmin;
+  --z-yn: -22deg; --z-yn-o: 100%; 
+  inset: -4vmin 0 0 24vmin;
+  width: var(--w);
+  height: var(--h);
+  & > .msf-zneg {
+    --var: calc(100%/12);
+    clip-path: polygon( 0 0, 100% 0, 100% 100%, 0 calc(var(--var) * 4) );
+  }
+  & > .msf-yneg { --z-s: 1.09 }
+  transform: translate3D(var(--x), var(--y), var(--z));
+}
+
+/* --------------------------------------------------------- BOX FACES */
+
+.msh-face.msf-zneg {
+  transform-origin: center var(--z-zn-o);
+  transform: translate3D(var(--x), var(--y), var(--z)) rotateX(var(--z-zn)) scale3D(1, var(--z-s), var(--z-s));
+  &::before { filter: brightness(var(--fb-zn)); }
+}
+
+.msh-face.msf-ypos {
+  height: var(--d);
+  transform-origin: var(--z-yp-o) 0;
+  transform: translate3D(var(--x), var(--y), var(--z)) rotateX(-90deg) rotateY(var(--z-yp)) scale3D(var(--z-s), 1, var(--z-s));
+  &::before { filter: brightness(var(--fb-yp)); }
+}
+
+.msh-face.msf-xpos {
+  width: var(--d);
+  transform-origin: 0 var(--z-xp-o);
+  transform: translate3D(var(--x), var(--y), var(--z)) rotateY(90deg) rotateX(var(--z-xp)) scale3D(1, var(--z-s), var(--z-s));
+  &::before { filter: brightness(var(--fb-xp)); }
+}
+
+.msh-face.msf-yneg {
+  height: var(--d);
+  margin-top: var(--h);
+  transform-origin: var(--z-yn-o) 0;
+  transform: translate3D(var(--x), var(--y), var(--z)) rotateX(-90deg) rotateY(var(--z-yn)) scale3D(var(--z-s), 1, var(--z-s));
+  &::before { filter: brightness(var(--fb-yn)); }
+}
+
+.msh-face.msf-xneg {
+  width: var(--d);
+  margin-left: 100%;
+  transform-origin: 0 var(--z-xn-o);
+  transform: translate3D(var(--x), var(--y), var(--z)) rotateY(90deg) rotateX(var(--z-xn)) scale3D(1, var(--z-s), var(--z-s));
+  &::before { filter: brightness(var(--fb-xn)); }
+}
+
+.msh-face.msf-zpos {
+  transform-origin: 0 var(--z-zp-o);
+  transform: translate3D(var(--x), var(--y), var(--z)) translateZ( calc(var(--d) * -1) ) rotateX(var(--z-zp)) scale3D(1, var(--z-s), var(--z-s));
+  &::before { filter: brightness(var(--fb-zp)); }
+}
+
+/* --------------------------------------------------------- DEV */
+
+.devmdl *:not(.skipdev) {
+  outline: 1px dashed #444;
+  color: #aaa4;
+}
+
+.devmdlbb {
+  outline: 2px dotted blue !important;
+  color: #aaa4;
+}
