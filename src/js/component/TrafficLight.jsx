@@ -130,7 +130,7 @@ const TrafficLight = () => {
     { name: "red light", active: false, visible: true, color: "#f01" },
     { name: "orange light", active: false, visible: true, color: "#f90" },
     { name: "green light", active: false, visible: true, color: "#4f0" },
-    { name: "purple light", active: false, visible: true, color: "#60f" },
+    { name: "purple light", active: false, visible: false, color: "#60f" },
   ];
 
   // states
