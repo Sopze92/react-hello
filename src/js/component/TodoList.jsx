@@ -40,37 +40,58 @@ const TaskList_Title= ()=> {
           <h1 key={`title-layer-${i}`} className={`m-0 mb-4 p-0 tl-title layer-bg layer-bg${i}`} >{title}</h1>
         )
       }
+      <h4 className="fw-bold tl-subtitle">Now with Fetch!</h4>
     </div>
   )
 }
 
 // ------------------------------------------------------------------------------------ TODOLIST COMPONENT
 
-const ITEM_ANIM= { NONE: "", ADDED: "tl-anim-onadd", REMOVED: "tl-anim-onremove" };
+const 
+  ITEM_ANIM= { NONE: "", ADDED: "tl-anim-onadd", REMOVE: "tl-anim-onremove" },
+  API_URL= "https://playground.4geeks.com/apis/fake/todos/user/sopze92"
 
 const TodoList= ()=> {
 
   const 
     [inputField, setInputField]= React.useState(""),
-    [taskList, setTaskList]= React.useState([
-      {
-        text: "buy a Horse with 5 legs",
-        anim: ITEM_ANIM.ADDED
-      },
-      {
-        text: "catch a gnome with a lasso",
-        anim: ITEM_ANIM.ADDED
-      },
-      {
-        text: "run naked through the forest",
-        anim: ITEM_ANIM.ADDED
-      }
-    ]);
+    [taskList, setTaskList]= React.useState([]);
 
   const 
     bAnyTask= taskList && taskList.length > 0,
     bAnyInput= inputField && inputField.length > 0;
   
+  // FETCH ADDITIONS
+
+  // get list, at startup and on every change
+  React.useEffect(()=>{
+    fetch(API_URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data && data.length > 0) updateList(data);
+      else clearList();
+    })
+    .catch(err => console.warn(err))
+  }, []) 
+
+  // this was just used once to create the user sopze92
+/*   
+  React.useEffect(()=>{
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify([]),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+  }, []) 
+*/
+
   // handlers
 
   function handleInputChange(target) {
@@ -84,12 +105,12 @@ const TodoList= ()=> {
   }
 
   function handleItemAnimationEnd(idx){
-    if(taskList[idx].anim== ITEM_ANIM.REMOVED) removeItem(idx);
+    if(taskList[idx].anim== ITEM_ANIM.REMOVE) removeItem(idx);
     else setItemAnimation(idx, ITEM_ANIM.NONE);
   }
 
   function handleRemoveItemButton(idx){
-    if(taskList[idx]!= ITEM_ANIM.REMOVED) setItemAnimation(idx, ITEM_ANIM.REMOVED);
+    if(taskList[idx]!= ITEM_ANIM.REMOVE) setItemAnimation(idx, ITEM_ANIM.REMOVE);
   }
 
   // other
@@ -106,6 +127,16 @@ const TodoList= ()=> {
   function removeItem(idx, clearInput=false){
     const newTaskList= taskList.filter((e,i)=> i!= idx);
     if(clearInput) setInputField("");
+    setTaskList(newTaskList);
+  }
+
+  function updateList(data){
+    console.log(data);
+  }
+
+  function clearList(){
+    const newTaskList= structuredClone(taskList);
+    newTaskList.forEach(e => e.anim= ITEM_ANIM.REMOVE);
     setTaskList(newTaskList);
   }
 
