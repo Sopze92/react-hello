@@ -3,11 +3,11 @@ import ReactDOM from "react-dom";
 
 import "../styles/index.css";
 
-import TrafficLight from "./component/TrafficLight.jsx";
+import TodoList from "./component/TodoList.jsx";
 
 ReactDOM.render(
   (
     <React.StrictMode>
-      <TrafficLight />
+      <TodoList />
     </React.StrictMode>
   ), document.getElementById("app"));

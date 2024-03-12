@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Hairline&display=swap');
+
+.icon-enter { background-image: url("../img/i_enter.png"); }
+.icon-remove { background-image: url("../img/i_remove.png"); }
+
+.tl-container {
+    width: 30rem;
+}
+
+.tl-title {
+    position: relative;
+    user-select: none;
+    font-family: "bungee hairline";
+
+    transform-style: preserve-3d;
+    transform: perspective(128px) rotateX(4deg);
+
+    & h1 {
+        font-size: 8rem;
+    }
+
+    & .layer-fg {
+        --cv-rx: 1px; --cv-rb: 0px;
+        --cv-bx: -1px; --cv-bb: 0px;
+        --cv-mx: 0px;
+        translate: var(--cv-mx) 0;
+        text-shadow: 0 0 8px #ffff, 0 0 32px #ffff, var(--cv-rx) 1px var(--cv-rb) #0aff, var(--cv-bx) -1px var(--cv-bb) #f00f;
+    }
+
+    & .layer-bg {
+        position: absolute;
+        inset: 0;
+        animation: 
+            transform 2000ms infinite linear,
+            fadeout 2000ms infinite ease-in;
+    }
+
+    & .layer-bg0 { opacity: .0; animation-delay: 400ms };
+    & .layer-bg1 { opacity: .0; animation-delay: 800ms };
+    & .layer-bg2 { opacity: .0; animation-delay: 1200ms };
+    & .layer-bg3 { opacity: .0; animation-delay: 1600ms };
+}
+
+@keyframes transform {
+    0% { transform: translate3D(0, 0, 0px); }
+    20% { transform: translate3D(0, 5px, -3px); }
+    40% { transform: translate3D(0, 10px, -6px); }
+    60% { transform: translate3D(0, 20px, -12px); }
+    80% { transform: translate3D(0, 40px, -20px); }
+    100% { transform: translate3D(0, 80px, -32px); }
+}
+
+@keyframes fadeout { 
+    0% { scale: 1.0; opacity: .5; } 
+    100% { scale: .95; opacity: .0; } 
+}
+
+.tl-tasklist-multi {
+    & .tl-tasklist-behind { padding: 2px; }
+    & .tl-tasklist-behind-0 { margin-inline: 2px; filter: brightness(.75); }
+    & .tl-tasklist-behind-1 { margin-inline: 4px; filter: brightness(.5); }
+}
+
+.tl-input, .tl-input:hover, tl-input:active {
+    border: none;
+    outline: none;
+    background: none;
+}
+
+.tl-button {
+    position: relative;
+    border: 0;
+    margin: 0;
+    background: #0000;
+    width: 24px;
+    height: 24px;
+    filter: brightness(.6);
+    &:hover {
+       filter: brightness(1.0);
+    }
+}
+
+.tl-icon {
+    position: absolute; inset: 0;
+    background-size: contain;
+}
+
+.tl-taskitem {
+
+    position: relative;
+    transform-origin: top center;
+    margin: 0;
+
+    & button { display: none; }
+
+    &:hover {
+        filter: brightness(1.25);
+        & button { display: block; }
+    }
+
+    &.tl-anim-onadd {
+        z-index: 16;
+        animation: onadd 300ms forwards ease-out;
+    }
+    &.tl-anim-onremove {
+        z-index: 8;
+        animation: onremove 300ms forwards ease-out;
+    }
+}
+
+@keyframes onadd {
+    0% { 
+        transform: perspective(500px) rotateX(-90deg);
+        margin-bottom: -50px;
+        background: #fff;
+        scale: 1.2;
+    };
+    100% { 
+        transform: perspective(2000px) rotateX(0deg);
+        margin-bottom: 0%;
+    };
+}
+
+@keyframes onremove {
+    0% { 
+        transform: translate3D(0, 0, 0);
+        margin-bottom: 0%;
+        opacity: 1.0;
+        scale: 1.0;
+    };
+    100% { 
+        transform: translate3D(0, -8px, 0);
+        margin-bottom: -50px;
+        filter: brightness(.5);
+        opacity: 0;
+        scale: 1.5 0.0;
+    };
+}
+
+.tl-footnote {
+    font-size: .8rem;
+}
