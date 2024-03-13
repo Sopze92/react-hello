@@ -48,49 +48,68 @@ const TaskList_Title= ()=> {
 // ------------------------------------------------------------------------------------ TODOLIST COMPONENT
 
 const 
-  ITEM_ANIM= { NONE: "", ADDED: "tl-anim-onadd", REMOVE: "tl-anim-onremove" },
+  ITEM_ANIM= { NONE: "", ADDED: "tl-anim-onadd", REMOVE: "tl-anim-onremove", REMOVEALL: "tl-anim-onremoveall" },
   API_URL= "https://playground.4geeks.com/apis/fake/todos/user/sopze92"
 
 const TodoList= ()=> {
 
   const 
     [inputField, setInputField]= React.useState(""),
-    [taskList, setTaskList]= React.useState([]);
+    [taskList, setTaskList]= React.useState(null);
 
   const 
     bAnyTask= taskList && taskList.length > 0,
     bAnyInput= inputField && inputField.length > 0;
   
-  // FETCH ADDITIONS
+  // --------------------------------- FETCH ADDITIONS ---------------------------------
+  // ok, so i made the app ignore the first element of the list in both ways so we can easily "clear" the list, as the API says you cannot update the 
+  //  list with 0 elements and deleting/creating the user just for clearing the list is weird as it always initializes users with an "example task"
 
-  // get list, at startup and on every change
   React.useEffect(()=>{
-    fetch(API_URL, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if(data && data.length > 0) updateList(data);
-      else clearList();
-    })
-    .catch(err => console.warn(err))
-  }, []) 
+    if(!taskList){
 
-  // this was just used once to create the user sopze92
-/*   
-  React.useEffect(()=>{
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify([]),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-  }, []) 
-*/
+      // get list from server at startup
+      fetch(API_URL, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => {
+        if(res.ok) return res.json();
+        else if(res.status===404){
+          // if user 404'd then try creating it
+          fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify([]),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
+          .then(res => {
+            if(res.ok) setTaskList([]);
+          })
+          //.catch(err => { console.log("err creating the user: "); console.warn(err); })
+        }
+      })
+      .then(data => {
+        // filters out the first element, lists of 1 element count as empty
+        if(data && data.length > 1) setTaskList( data.filter((e,i)=> i!=0).map(e=> {return { text:e.label, anim:ITEM_ANIM.ADDED }}));
+      })
+      //.catch(err => { console.log("err getting the tasklist: "); console.warn(err); })
+    }
+    else {
+      // upload list to server
+      // adds an extra first element, you cannot send an empty array, so for this project, 1 is the new 0
+      fetch(API_URL, {
+        method: "PUT",
+        body: JSON.stringify( [{ label:"ZERO", done:false }].concat(taskList.map(e=> {return { label:e.text, done:false }})) ),
+        headers: { "Content-Type": "application/json" }
+      })
+      .catch(err => { console.log("err updating list: "); console.warn(err); })
+    }
+  }, [taskList]) 
+
+  
+  // --------------------------------- END OF FETCH ADDITIONS ---------------------------------
 
   // handlers
 
@@ -106,6 +125,7 @@ const TodoList= ()=> {
 
   function handleItemAnimationEnd(idx){
     if(taskList[idx].anim== ITEM_ANIM.REMOVE) removeItem(idx);
+    else if(taskList[idx].anim== ITEM_ANIM.REMOVEALL) setTaskList([]);
     else setItemAnimation(idx, ITEM_ANIM.NONE);
   }
 
@@ -117,7 +137,7 @@ const TodoList= ()=> {
 
   function addItem(text, clearInput=false){
     const newTaskList= [
-      ...taskList, 
+      ...(taskList?? []), 
       { text: text, anim: ITEM_ANIM.ADDED }
     ];
     if(clearInput) setInputField("");
@@ -130,13 +150,9 @@ const TodoList= ()=> {
     setTaskList(newTaskList);
   }
 
-  function updateList(data){
-    console.log(data);
-  }
-
   function clearList(){
     const newTaskList= structuredClone(taskList);
-    newTaskList.forEach(e => e.anim= ITEM_ANIM.REMOVE);
+    newTaskList.forEach(e => e.anim= ITEM_ANIM.REMOVEALL);
     setTaskList(newTaskList);
   }
 
@@ -178,7 +194,11 @@ const TodoList= ()=> {
         }
         {
           ( !bAnyTask && <li className="list-group-item fw-light p-1 ps-2 text-secondary tl-footnote">No tasks here...</li> )
-          || <li className="list-group-item fw-light p-1 ps-2 text-secondary tl-footnote">{taskList.length} {taskList.length > 1 ? "Tasks" : "Task"} left</li>
+          || 
+          <li className="list-group-item fw-light p-1 ps-2 text-secondary tl-footnote d-flex justify-content-between">
+            <p className="m-0 p-0">{taskList.length} {taskList.length > 1 ? "Tasks" : "Task"} left</p>
+            <p className="m-0 p-0 tl-button-clear" onClick={()=>clearList()}>clear list</p>
+          </li>
         }
       </ul>
         {
